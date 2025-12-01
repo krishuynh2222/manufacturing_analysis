@@ -14,20 +14,15 @@ GROUP BY shift
 ORDER BY Total_Downtime_Hours DESC;
 
 -- Average Efficiency Rate by Machine ID
-WITH base AS (
-    SELECT DISTINCT workorder, line, plannedhours, actualhours
-    FROM production
-)
-SELECT
-    line AS machine_id,
+SELECT 
+    Line AS machine_id,
     ROUND(
-        COUNT(*) FILTER (WHERE actualhours <= plannedhours)::numeric
-        / NULLIF(COUNT(*), 0) * 100,
-        2
-    ) AS avg_efficiency_rate_pct
-FROM base
-GROUP BY line
-ORDER BY avg_efficiency_rate_pct DESC;
+        (SUM(PlannedHours) * 100.0) / 
+        NULLIF(SUM(ActualHours), 0), 
+    2) AS Avg_Efficiency_Rate
+FROM Production
+GROUP BY Line
+ORDER BY Avg_Efficiency_Rate DESC;
 
 -- Downtime % by Machine ID
 WITH agg AS (
